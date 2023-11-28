@@ -1,29 +1,21 @@
-/* source code courtesy of Frank Thomas Braun */
-
-/* calc3d.c: Generation of the graph of the syntax tree */
-
 #include <stdio.h>
 #include <string.h>
 
 #include "my_calc.h"
 #include "y.tab.h"
 
-int del = 1; /* distance of graph columns */
-int eps = 3; /* distance of graph lines */
+int del = 1; 
+int eps = 3; 
 
-/* interface for drawing (can be replaced by "real" graphic using GD or other) */
 void graphInit (void);
 void graphFinish();
 void graphBox (char *s, int *w, int *h);
 void graphDrawBox (char *s, int c, int l);
 void graphDrawArrow (int c1, int l1, int c2, int l2);
 
-/* recursive drawing of the syntax tree */
 void exNode (nodeType *p, int c, int l, int *ce, int *cm);
 
-/*****************************************************************************/
 
-/* main entry point of the manipulation of the syntax tree */
 int ex (nodeType *p) {
     int rte, rtm;
 
@@ -33,39 +25,23 @@ int ex (nodeType *p) {
     return 0;
 }
 
-/*c----cm---ce---->                       drawing of leaf-nodes
- l leaf-info
- */
-
-/*c---------------cm--------------ce----> drawing of non-leaf-nodes
- l            node-info
- *                |
- *    -------------     ...----
- *    |       |               |
- *    v       v               v
- * child1  child2  ...     child-n
- *        che     che             che
- *cs      cs      cs              cs
- *
- */
-
 void exNode
     (   nodeType *p,
-        int c, int l,        /* start column and line of node */
-        int *ce, int *cm     /* resulting end column and mid of node */
+        int c, int l,      
+        int *ce, int *cm    
     )
 {
-    int w, h;           /* node width and height */
-    char *s;            /* node text */
-    int cbar;           /* "real" start column of node (centred above subnodes) */
-    int k;              /* child number */
-    int che, chm;       /* end column and mid of children */
-    int cs;             /* start column of children */
-    char word[20];      /* extended node text */
+    int w, h;         
+    char *s;       
+    int cbar;   
+    int k;   
+    int che, chm; 
+    int cs;     
+    char word[20];   
 
     if (!p) return;
 
-    strcpy (word, "???"); /* should never appear */
+    strcpy (word, "???");
     s = word;
     switch(p->type) {
         case typeCon: sprintf (word, "c(%f)", p->con.value); break;
@@ -92,36 +68,36 @@ void exNode
             break;
     }
 
-    /* construct node text box */
+
     graphBox (s, &w, &h);
     cbar = c;
     *ce = c + w;
     *cm = c + w / 2;
 
-    /* node is leaf */
+
     if (p->type == typeCon || p->type == typeId || p->opr.nops == 0) {
         graphDrawBox (s, cbar, l);
         return;
     }
 
-    /* node has children */
+
     cs = c;
     for (k = 0; k < p->opr.nops; k++) {
         exNode (p->opr.op[k], cs, l+h+eps, &che, &chm);
         cs = che;
     }
 
-    /* total node width */
+
     if (w < che - c) {
         cbar += (che - c - w) / 2;
         *ce = che;
         *cm = (c + che) / 2;
     }
 
-    /* draw node */
+
     graphDrawBox (s, cbar, l);
 
-    /* draw arrows (not optimal: children are drawn a second time) */
+
     cs = c;
     for (k = 0; k < p->opr.nops; k++) {
         exNode (p->opr.op[k], cs, l+h+eps, &che, &chm);
@@ -130,12 +106,11 @@ void exNode
     }
 }
 
-/* interface for drawing */
 
 #define lmax 200
 #define cmax 200
 
-char graph[lmax][cmax]; /* array for ASCII-Graphic */
+char graph[lmax][cmax];
 int graphNumber = 0;
 
 void graphTest (int l, int c)
