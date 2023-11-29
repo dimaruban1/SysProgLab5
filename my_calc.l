@@ -24,9 +24,6 @@ LETTER [a-zA-Z_]
 "<="            return LE;
 "=="            return EQ;
 "!="            return NE;
-"while"         return WHILE;
-"if"            return IF;
-"else"          return ELSE;
 "print"         return PRINT;
 
 [ \t\n]+        ;

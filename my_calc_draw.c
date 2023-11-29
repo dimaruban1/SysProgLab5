@@ -4,8 +4,8 @@
 #include "my_calc.h"
 #include "y.tab.h"
 
-int del = 1; 
-int eps = 3; 
+int del = 1;
+int eps = 3;
 
 void graphInit (void);
 void graphFinish();
@@ -14,7 +14,6 @@ void graphDrawBox (char *s, int c, int l);
 void graphDrawArrow (int c1, int l1, int c2, int l2);
 
 void exNode (nodeType *p, int c, int l, int *ce, int *cm);
-
 
 int ex (nodeType *p) {
     int rte, rtm;
@@ -27,21 +26,21 @@ int ex (nodeType *p) {
 
 void exNode
     (   nodeType *p,
-        int c, int l,      
-        int *ce, int *cm    
+        int c, int l,   
+        int *ce, int *cm 
     )
 {
-    int w, h;         
-    char *s;       
+    int w, h;    
+    char *s;   
     int cbar;   
-    int k;   
+    int k;  
     int che, chm; 
-    int cs;     
-    char word[20];   
+    int cs;    
+    char word[20];
 
     if (!p) return;
 
-    strcpy (word, "???");
+    strcpy (word, "???"); 
     s = word;
     switch(p->type) {
         case typeCon: sprintf (word, "c(%f)", p->con.value); break;
@@ -68,18 +67,15 @@ void exNode
             break;
     }
 
-
     graphBox (s, &w, &h);
     cbar = c;
     *ce = c + w;
     *cm = c + w / 2;
 
-
     if (p->type == typeCon || p->type == typeId || p->opr.nops == 0) {
         graphDrawBox (s, cbar, l);
         return;
     }
-
 
     cs = c;
     for (k = 0; k < p->opr.nops; k++) {
@@ -87,16 +83,13 @@ void exNode
         cs = che;
     }
 
-
     if (w < che - c) {
         cbar += (che - c - w) / 2;
         *ce = che;
         *cm = (c + che) / 2;
     }
 
-
     graphDrawBox (s, cbar, l);
-
 
     cs = c;
     for (k = 0; k < p->opr.nops; k++) {

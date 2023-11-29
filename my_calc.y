@@ -55,9 +55,6 @@ stmt:
         | expr ';'                       { $$ = $1; }
         | PRINT expr ';'                 { $$ = opr(PRINT, 1, $2); }
         | VARIABLE '=' expr ';'          { $$ = opr('=', 2, id($1), $3); }
-        | WHILE '(' expr ')' stmt        { $$ = opr(WHILE, 2, $3, $5); }
-        | IF '(' expr ')' stmt %prec IFX { $$ = opr(IF, 2, $3, $5); }
-        | IF '(' expr ')' stmt ELSE stmt { $$ = opr(IF, 3, $3, $5, $7); }
         | '{' stmt_list '}'              { $$ = $2; }
         ;
 
@@ -87,64 +84,25 @@ expr:
 
 #define SIZEOF_NODETYPE ((char *)&p->con - (char *)p)
 
-//void checkOperator(nodeType *p, const char *operator) {
-//    int nops = p->opr.nops;
-//    
-//    if (nops < 2) {
-//		sprintf(errors[sem_errors], "wrong usage of operator %s, missing arguments\n", operator);
-//		sem_errors++;
-//    } else if (nops > 2) {
-//		sprintf(errors[sem_errors], "wrong usage of operator %s, extra arguments\n", operator);
-//		sem_errors++;
-//    }
-//}
-//void checkOperatorc(nodeType *p, char operator) {
-//    if (nops < 2) {
-//		sprintf(errors[sem_errors], "wrong usage of operator %c, missing arguments\n", operator);
-//		sem_errors++;
-//    } else if (nops > 2) {
-//		sprintf(errors[sem_errors], "wrong usage of operator %c, extra arguments\n", operator);
-//		sem_errors++;
-//    }
-//}
-//void checkNode(nodeType *p) {
-//    switch(p->opr.oper) {
-//        case '=':
-//        case '+':
-//        case '-':
-//        case '*':
-//        case '/':
-//        case '<':
-//        case '>':
-//            checkOperatorc(p, p->opr.oper);
-//            break;
-//        case GE:
-//            checkOperator(p, ">=");
-//            break;
-//        case LE:
-//            checkOperator(p, "<=");
-//            break;
-//        case NE:
-//            checkOperator(p, "!=");
-//            break;
-//        case EQ:
-//            checkOperator(p, "==");
-//            break;
-//        default:
-//            break;
-//    }
-//}
+void checkOperator(nodeType *p) {
+    int nops = p->opr.nops;
+}
+
+void checkNode(nodeType *p) {
+    if (p->type != typeOpr){
+        return;
+    }
+    checkOperator(p);
+}
 
 nodeType *con(double value) {
     nodeType *p;
     size_t nodeSize;
 
-    /* allocate node */
     nodeSize = SIZEOF_NODETYPE + sizeof(conNodeType);
     if ((p = malloc(nodeSize)) == NULL)
         yyerror("out of memory");
 
-    /* copy information */
     p->type = typeCon;
     p->con.value = value;
 
@@ -155,12 +113,10 @@ nodeType *id(int i) {
     nodeType *p;
     size_t nodeSize;
 
-    /* allocate node */
     nodeSize = SIZEOF_NODETYPE + sizeof(idNodeType);
     if ((p = malloc(nodeSize)) == NULL)
         yyerror("out of memory");
 
-    /* copy information */
     p->type = typeId;
     p->id.i = i;
 
@@ -172,14 +128,12 @@ nodeType *opr(int oper, int nops, ...) {
     nodeType *p;
     size_t nodeSize;
     int i;
-
-    /* allocate node */
+    
     nodeSize = SIZEOF_NODETYPE + sizeof(oprNodeType) +
         (nops - 1) * sizeof(nodeType*);
     if ((p = malloc(nodeSize)) == NULL)
         yyerror("out of memory");
 
-    /* copy information */
     p->type = typeOpr;
     p->opr.oper = oper;
     p->opr.nops = nops;
@@ -204,10 +158,10 @@ void freeNode(nodeType *p) {
 
 void yyerror(char *s) {
     fprintf(stdout, "%s\n", s);
-//    fprintf(stdout, "%i\n", sem_errors);
-//    for(int i = 0; i < sem_errors; i++){
-//        fprintf(stdout, "%s\n", errors[i]);
-//    } 
+    fprintf(stdout, "number of compilation errors: %i\n", sem_errors);
+    for(int i = 0; i < sem_errors; i++){
+        fprintf(stdout, "%s\n", errors[i]);
+    } 
 }
 
 int main(void) {
