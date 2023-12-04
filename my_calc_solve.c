@@ -18,8 +18,10 @@ double ex(nodeType *p) {
         case '*':       return ex(p->opr.op[0]) * ex(p->opr.op[1]);
         case '/':
             if (ex(p->opr.op[1]) == 0)
+            {
                 printf("Division by 0 is noticed, result is incorrect");
                 return 0;
+            }
             return ex(p->opr.op[0]) / ex(p->opr.op[1]);
         case '<':       return ex(p->opr.op[0]) < ex(p->opr.op[1]);
         case '>':       return ex(p->opr.op[0]) > ex(p->opr.op[1]);
